@@ -1,4 +1,80 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Placeholder — implemented in Phase 3–4.
-final paymentHistoryProvider = Provider<List<Never>>((ref) => const []);
+import '../../../core/constants/utility_types.dart';
+import '../../../firebase_options.dart';
+import '../../../providers/repository_providers.dart';
+import '../../bills/providers/bill_providers.dart';
+import '../data/models/payment_record.dart';
+import '../data/repositories/payment_repository.dart';
+
+/// Payment portal URLs — Remote Config when Firebase is ready, else local defaults.
+final remoteConfigProvider = FutureProvider<Map<String, String>>((ref) async {
+  if (!DefaultFirebaseOptions.isConfigured || Firebase.apps.isEmpty) {
+    return Map<String, String>.from(kDefaultPaymentUrls);
+  }
+
+  try {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 10),
+        minimumFetchInterval: const Duration(hours: 6),
+      ),
+    );
+    await remoteConfig.setDefaults(
+      kDefaultPaymentUrls.map((k, v) => MapEntry('payment_url_$k', v)),
+    );
+    await remoteConfig.fetchAndActivate();
+
+    return {
+      for (final type in UtilityType.values)
+        type.name: remoteConfig.getString('payment_url_${type.name}').isNotEmpty
+            ? remoteConfig.getString('payment_url_${type.name}')
+            : (kDefaultPaymentUrls[type.name] ?? ''),
+    };
+  } catch (e, st) {
+    debugPrint('Remote Config unavailable, using defaults: $e\n$st');
+    return Map<String, String>.from(kDefaultPaymentUrls);
+  }
+});
+
+class PaymentHistoryNotifier extends AsyncNotifier<List<PaymentRecord>> {
+  PaymentRepository get _repo => ref.read(paymentRepositoryProvider);
+
+  @override
+  Future<List<PaymentRecord>> build() async {
+    // Full history list arrives in Phase 4; addRecord works from Phase 3.
+    return [];
+  }
+
+  Future<void> addRecord(PaymentRecord record) async {
+    await _repo.insert(record);
+    await ref.read(billRepositoryProvider).updateLastPaid(
+          record.billAccountId,
+          record.paidAt,
+        );
+    ref.invalidate(billAccountsProvider);
+    ref.invalidate(billPaymentHistoryProvider(record.billAccountId));
+    ref.invalidateSelf();
+  }
+
+  Future<void> deleteRecord(String id) async {
+    await _repo.delete(id);
+    ref.invalidateSelf();
+  }
+}
+
+final paymentHistoryProvider =
+    AsyncNotifierProvider<PaymentHistoryNotifier, List<PaymentRecord>>(
+  PaymentHistoryNotifier.new,
+);
+
+/// Per-bill payment history.
+final billPaymentHistoryProvider =
+    FutureProvider.family<List<PaymentRecord>, String>((ref, billId) async {
+  final repo = ref.watch(paymentRepositoryProvider);
+  return repo.getByBillAccount(billId);
+});

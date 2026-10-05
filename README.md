@@ -4,13 +4,12 @@ Utility bill tracker for Bangladesh — Flutter, offline-first, Android-first.
 
 **Package:** `com.nextgenai.billbax`
 
-## Phase 0 status
+## Progress
 
-- [x] Flutter project created (android / ios / macos)
-- [x] Feature-first `lib/` folder structure
-- [x] Riverpod + go_router + sqflite wired
-- [x] Dependencies in `pubspec.yaml`
-- [ ] Firebase connected via FlutterFire (see [docs/setup/firebase-setup.md](docs/setup/firebase-setup.md))
+- [x] **Phase 0** — Flutter project, folder structure, Riverpod, deps
+- [x] **Phase 1** — SQLite schema, models, repositories, unit tests
+- [ ] Firebase via FlutterFire (see [docs/setup/firebase-setup.md](docs/setup/firebase-setup.md))
+- [ ] **Phase 2** — Bill management UI
 
 ## Run
 
@@ -19,6 +18,7 @@ flutter pub get
 flutter run                 # pick a device
 flutter run -d macos        # desktop smoke test
 flutter test
+flutter test test/repositories/
 ```
 
 ## Docs
@@ -32,4 +32,4 @@ flutter test
 
 ## Next
 
-**Phase 1 — Data layer:** full `BillAccount` / `PaymentRecord` models, repositories, unit tests.
+**Phase 2 — Bill management UI:** Riverpod bill providers, home dashboard, add/edit/delete.

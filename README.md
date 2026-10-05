@@ -8,8 +8,9 @@ Utility bill tracker for Bangladesh — Flutter, offline-first, Android-first.
 
 - [x] **Phase 0** — Flutter project, folder structure, Riverpod, deps
 - [x] **Phase 1** — SQLite schema, models, repositories, unit tests
+- [x] **Phase 2** — Bill management UI (home, add/edit/delete)
 - [ ] Firebase via FlutterFire (see [docs/setup/firebase-setup.md](docs/setup/firebase-setup.md))
-- [ ] **Phase 2** — Bill management UI
+- [ ] **Phase 3** — Payment redirect system
 
 ## Run
 
@@ -32,4 +33,4 @@ flutter test test/repositories/
 
 ## Next
 
-**Phase 2 — Bill management UI:** Riverpod bill providers, home dashboard, add/edit/delete.
+**Phase 3 — Payment redirect:** Pay Now → url_launcher → log payment sheet.

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/analytics/presentation/screens/analytics_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/bills/data/models/bill_account.dart';
 import '../../features/bills/presentation/screens/add_bill_screen.dart';
 import '../../features/bills/presentation/screens/bill_detail_screen.dart';
 import '../../features/bills/presentation/screens/home_screen.dart';
@@ -15,7 +16,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     routes: [
       GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-      GoRoute(path: '/add-bill', builder: (_, __) => const AddBillScreen()),
+      GoRoute(
+        path: '/add-bill',
+        builder: (_, state) => AddBillScreen(
+          existingAccount: state.extra as BillAccount?,
+        ),
+      ),
       GoRoute(
         path: '/bill/:id',
         builder: (_, state) =>

@@ -1,0 +1,48 @@
+name: bilbax
+description: Utility bill tracker for Bangladesh
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Local database
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+
+  # Firebase
+  firebase_core: ^3.3.0
+  firebase_auth: ^5.1.4
+  cloud_firestore: ^5.2.1
+  firebase_messaging: ^15.0.4
+  firebase_remote_config: ^5.1.2
+
+  # Navigation
+  go_router: ^14.2.7
+
+  # UI utilities
+  flutter_local_notifications: ^17.2.2
+  url_launcher: ^6.3.0
+  fl_chart: ^0.68.0
+  intl: any
+  shared_preferences: ^2.3.2
+  uuid: ^4.4.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  mockito: ^5.4.4
+  sqflite_common_ffi: ^2.3.3
+
+flutter:
+  uses-material-design: true

@@ -10,6 +10,8 @@ import '../../bills/providers/bill_providers.dart';
 import '../data/models/payment_record.dart';
 import '../data/repositories/payment_repository.dart';
 
+export '../data/models/payment_record.dart' show MonthlyTotal;
+
 /// Payment portal URLs — Remote Config when Firebase is ready, else local defaults.
 final remoteConfigProvider = FutureProvider<Map<String, String>>((ref) async {
   if (!DefaultFirebaseOptions.isConfigured || Firebase.apps.isEmpty) {
@@ -43,11 +45,17 @@ final remoteConfigProvider = FutureProvider<Map<String, String>>((ref) async {
 
 class PaymentHistoryNotifier extends AsyncNotifier<List<PaymentRecord>> {
   PaymentRepository get _repo => ref.read(paymentRepositoryProvider);
+  String? _currentBillId;
+
+  void setBillId(String billId) {
+    _currentBillId = billId;
+    ref.invalidateSelf();
+  }
 
   @override
   Future<List<PaymentRecord>> build() async {
-    // Full history list arrives in Phase 4; addRecord works from Phase 3.
-    return [];
+    if (_currentBillId == null) return [];
+    return _repo.getByBillAccount(_currentBillId!);
   }
 
   Future<void> addRecord(PaymentRecord record) async {
@@ -58,11 +66,16 @@ class PaymentHistoryNotifier extends AsyncNotifier<List<PaymentRecord>> {
         );
     ref.invalidate(billAccountsProvider);
     ref.invalidate(billPaymentHistoryProvider(record.billAccountId));
+    ref.invalidate(monthlyTotalsProvider(record.paidAt.year));
+    // Keep list scoped to the bill that was just paid when possible.
+    _currentBillId ??= record.billAccountId;
     ref.invalidateSelf();
   }
 
-  Future<void> deleteRecord(String id) async {
-    await _repo.delete(id);
+  Future<void> deleteRecord(PaymentRecord record) async {
+    await _repo.delete(record.id);
+    ref.invalidate(billPaymentHistoryProvider(record.billAccountId));
+    ref.invalidate(monthlyTotalsProvider(record.paidAt.year));
     ref.invalidateSelf();
   }
 }
@@ -72,9 +85,21 @@ final paymentHistoryProvider =
   PaymentHistoryNotifier.new,
 );
 
-/// Per-bill payment history.
+/// Per-bill payment history (preferred for history screen).
 final billPaymentHistoryProvider =
     FutureProvider.family<List<PaymentRecord>, String>((ref, billId) async {
   final repo = ref.watch(paymentRepositoryProvider);
   return repo.getByBillAccount(billId);
+});
+
+/// Analytics year selector.
+final selectedAnalyticsYearProvider = StateProvider<int>((ref) {
+  return DateTime.now().year;
+});
+
+/// Monthly spend totals for a calendar year.
+final monthlyTotalsProvider =
+    FutureProvider.family<List<MonthlyTotal>, int>((ref, year) async {
+  final repo = ref.watch(paymentRepositoryProvider);
+  return repo.getMonthlyTotals(year);
 });

@@ -10,8 +10,9 @@ Utility bill tracker for Bangladesh — Flutter, offline-first, Android-first.
 - [x] **Phase 1** — SQLite schema, models, repositories, unit tests
 - [x] **Phase 2** — Bill management UI (home, add/edit/delete)
 - [x] **Phase 3** — Payment redirect + manual payment log
+- [x] **Phase 4** — Payment history & analytics charts
 - [ ] Firebase via FlutterFire (see [docs/setup/firebase-setup.md](docs/setup/firebase-setup.md))
-- [ ] **Phase 4** — Payment history & analytics
+- [ ] **Phase 5** — Firebase Auth + Firestore sync
 
 ## Run
 
@@ -34,4 +35,4 @@ flutter test test/repositories/
 
 ## Next
 
-**Phase 4 — Payment history & analytics:** history screen, monthly charts.
+**Phase 5 — Auth + sync:** phone OTP login, Firestore backup.

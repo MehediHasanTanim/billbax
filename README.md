@@ -12,8 +12,9 @@ Utility bill tracker for Bangladesh — Flutter, offline-first, Android-first.
 - [x] **Phase 3** — Payment redirect + manual payment log
 - [x] **Phase 4** — Payment history & analytics charts
 - [x] **Phase 5** — Phone OTP auth + Firestore sync (needs Firebase config)
+- [x] **Phase 6** — Local due-date reminders + FCM hooks
 - [ ] Firebase via FlutterFire (see [docs/setup/firebase-setup.md](docs/setup/firebase-setup.md))
-- [ ] **Phase 6** — Notifications & Remote Config polish
+- [ ] **Phase 7** — Polish, testing, release
 
 ## Run
 
@@ -36,6 +37,7 @@ flutter test test/repositories/
 
 ## Next
 
-**Phase 6 — Notifications:** local due-date reminders + Remote Config live URLs.
+**Phase 7 — Polish & release:** more tests, release APK/AAB.
 
-To enable login/sync, complete [Firebase setup](docs/setup/firebase-setup.md) and set `isConfigured => true`.
+### Reminder QA
+Settings → **টেস্ট রিমাইন্ডার (২ মিনিট)** or add a bill with a due day; reminders fire 2 days before at 09:00 Asia/Dhaka.

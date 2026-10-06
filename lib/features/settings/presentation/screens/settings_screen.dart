@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../auth/providers/auth_providers.dart';
+import '../../../notifications/services/reminder_service.dart';
 import '../../../sync/providers/sync_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -97,11 +98,29 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () =>
                   ref.read(syncNotifierProvider.notifier).syncOnLogin(),
             ),
+          ListTile(
+            leading: const Icon(Icons.notifications_active_outlined),
+            title: const Text('টেস্ট রিমাইন্ডার (২ মিনিট)'),
+            subtitle: const Text('নোটিফিকেশন পারমিশন যাচাই'),
+            onTap: () async {
+              await ref.read(reminderServiceProvider).scheduleTestReminder(
+                    billNickname: 'টেস্ট বিল',
+                    billId: 'qa-test',
+                  );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('২ মিনিট পর টেস্ট নোটিফিকেশন আসবে'),
+                  ),
+                );
+              }
+            },
+          ),
           const Divider(),
           const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text('বিলবাক্স'),
-            subtitle: Text('v1.0.0 · Phase 5'),
+            subtitle: Text('v1.0.0 · Phase 6'),
           ),
         ],
       ),

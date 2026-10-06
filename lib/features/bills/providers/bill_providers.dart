@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/repository_providers.dart';
 import '../../../providers/sync_service_provider.dart';
+import '../../notifications/services/reminder_service.dart';
 import '../data/models/bill_account.dart';
 import '../data/repositories/bill_repository.dart';
 
@@ -54,6 +55,7 @@ class BillAccountsNotifier extends AsyncNotifier<BillAccountsState> {
   Future<void> addAccount(BillAccount account) async {
     state = const AsyncLoading();
     await _repo.insert(account);
+    await _syncReminder(account);
     state = await AsyncValue.guard(_reload);
     // ignore: unawaited_futures
     ref.read(firestoreSyncServiceProvider).pushBillAccount(account);
@@ -61,6 +63,7 @@ class BillAccountsNotifier extends AsyncNotifier<BillAccountsState> {
 
   Future<void> updateAccount(BillAccount account) async {
     await _repo.update(account);
+    await _syncReminder(account);
     state = await AsyncValue.guard(_reload);
     // ignore: unawaited_futures
     ref.read(firestoreSyncServiceProvider).pushBillAccount(account);
@@ -68,6 +71,7 @@ class BillAccountsNotifier extends AsyncNotifier<BillAccountsState> {
 
   Future<void> deleteAccount(String id) async {
     await _repo.softDelete(id);
+    await ref.read(reminderServiceProvider).cancelForBill(id);
     state = await AsyncValue.guard(_reload);
     // ignore: unawaited_futures
     ref.read(firestoreSyncServiceProvider).softDeleteRemoteBill(id);
@@ -76,6 +80,25 @@ class BillAccountsNotifier extends AsyncNotifier<BillAccountsState> {
   Future<void> markPaid(String id) async {
     await _repo.updateLastPaid(id, DateTime.now());
     state = await AsyncValue.guard(_reload);
+  }
+
+  Future<void> rescheduleAllReminders() async {
+    final accounts = await _repo.getAll();
+    await ref.read(reminderServiceProvider).rescheduleAll(accounts);
+  }
+
+  Future<void> _syncReminder(BillAccount account) async {
+    final reminders = ref.read(reminderServiceProvider);
+    if (account.typicalDueDay == null) {
+      await reminders.cancelForBill(account.id);
+      return;
+    }
+    await reminders.scheduleMonthlyReminder(
+      notificationId: notificationIdForBill(account.id),
+      billNickname: account.nickname,
+      dayOfMonth: account.typicalDueDay!,
+      billId: account.id,
+    );
   }
 
   Future<BillAccountsState> _reload() async {

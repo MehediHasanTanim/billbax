@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../providers/repository_providers.dart';
+import '../../../providers/sync_service_provider.dart';
 import '../data/models/bill_account.dart';
 import '../data/repositories/bill_repository.dart';
 
@@ -54,16 +55,22 @@ class BillAccountsNotifier extends AsyncNotifier<BillAccountsState> {
     state = const AsyncLoading();
     await _repo.insert(account);
     state = await AsyncValue.guard(_reload);
+    // ignore: unawaited_futures
+    ref.read(firestoreSyncServiceProvider).pushBillAccount(account);
   }
 
   Future<void> updateAccount(BillAccount account) async {
     await _repo.update(account);
     state = await AsyncValue.guard(_reload);
+    // ignore: unawaited_futures
+    ref.read(firestoreSyncServiceProvider).pushBillAccount(account);
   }
 
   Future<void> deleteAccount(String id) async {
     await _repo.softDelete(id);
     state = await AsyncValue.guard(_reload);
+    // ignore: unawaited_futures
+    ref.read(firestoreSyncServiceProvider).softDeleteRemoteBill(id);
   }
 
   Future<void> markPaid(String id) async {

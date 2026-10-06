@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/utility_types.dart';
 import '../../../firebase_options.dart';
 import '../../../providers/repository_providers.dart';
+import '../../../providers/sync_service_provider.dart';
 import '../../bills/providers/bill_providers.dart';
 import '../data/models/payment_record.dart';
 import '../data/repositories/payment_repository.dart';
@@ -70,6 +71,10 @@ class PaymentHistoryNotifier extends AsyncNotifier<List<PaymentRecord>> {
     // Keep list scoped to the bill that was just paid when possible.
     _currentBillId ??= record.billAccountId;
     ref.invalidateSelf();
+    // ignore: unawaited_futures
+    ref.read(firestoreSyncServiceProvider).pushPendingPayments(
+          ref.read(paymentRepositoryProvider),
+        );
   }
 
   Future<void> deleteRecord(PaymentRecord record) async {

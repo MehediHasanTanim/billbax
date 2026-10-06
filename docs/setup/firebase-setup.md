@@ -35,3 +35,24 @@ static bool get isConfigured => true;
 
 5. Confirm `android/app/google-services.json` and
    `ios/Runner/GoogleService-Info.plist` exist (FlutterFire adds these).
+
+6. Deploy Firestore rules (user-scoped):
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+```bash
+firebase deploy --only firestore:rules
+```
+
+7. For Phone Auth on Android, add your SHA-1 in Firebase Console → Project settings.
+   For iOS, enable Phone provider and set up APNs if required.

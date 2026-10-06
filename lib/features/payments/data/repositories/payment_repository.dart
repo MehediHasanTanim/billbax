@@ -55,7 +55,11 @@ class PaymentRepository {
   }
 
   Future<void> insert(PaymentRecord record) async {
-    await _db.insert('payment_history', record.toMap());
+    await _db.insert(
+      'payment_history',
+      record.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<void> markSynced(String id) async {

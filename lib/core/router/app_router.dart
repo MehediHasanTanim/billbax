@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/analytics/presentation/screens/analytics_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/otp_screen.dart';
 import '../../features/bills/data/models/bill_account.dart';
 import '../../features/bills/presentation/screens/add_bill_screen.dart';
 import '../../features/bills/presentation/screens/bill_detail_screen.dart';
@@ -42,6 +43,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/analytics', builder: (_, __) => const AnalyticsScreen()),
       GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+      GoRoute(
+        path: '/otp',
+        builder: (_, state) {
+          final extra = state.extra as Map<String, String>? ?? {};
+          return OtpScreen(
+            phone: extra['phone'] ?? '',
+            verificationId: extra['verificationId'] ?? '',
+          );
+        },
+      ),
     ],
   );
 });

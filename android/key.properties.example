@@ -1,0 +1,24 @@
+# Release signing (optional)
+#
+# 1. Generate a keystore:
+#    keytool -genkey -v -keystore upload-keystore.jks \
+#      -keyalg RSA -keysize 2048 -validity 10000 \
+#      -alias upload
+#
+# 2. Copy this file to android/key.properties and fill in values:
+#    storePassword=...
+#    keyPassword=...
+#    keyAlias=upload
+#    storeFile=../upload-keystore.jks
+#
+# 3. Build:
+#    flutter build apk --release
+#    flutter build appbundle --release
+#
+# If key.properties is missing, release builds sign with the debug keystore
+# so local `flutter build apk --release` still works.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=../upload-keystore.jks

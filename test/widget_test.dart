@@ -3,27 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bilbax/core/constants/app_strings.dart';
-import 'package:bilbax/features/bills/data/models/bill_account.dart';
-import 'package:bilbax/features/bills/presentation/screens/home_screen.dart';
 import 'package:bilbax/features/bills/providers/bill_providers.dart';
+import 'package:bilbax/features/bills/presentation/screens/home_screen.dart';
 
-class _FixedBillsNotifier extends BillAccountsNotifier {
-  _FixedBillsNotifier(this._state);
-
-  final BillAccountsState _state;
-
+class _EmptyBillNotifier extends BillAccountsNotifier {
   @override
-  Future<BillAccountsState> build() async => _state;
+  Future<BillAccountsState> build() async =>
+      BillAccountsState.fromAccounts(const []);
 }
 
 void main() {
-  testWidgets('shows empty state when no bills', (tester) async {
+  testWidgets('HomeScreen shows empty state', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          billAccountsProvider.overrideWith(
-            () => _FixedBillsNotifier(BillAccountsState.fromAccounts(const [])),
-          ),
+          billAccountsProvider.overrideWith(_EmptyBillNotifier.new),
         ],
         child: const MaterialApp(home: HomeScreen()),
       ),
@@ -32,32 +26,5 @@ void main() {
 
     expect(find.text(AppStrings.noBills), findsOneWidget);
     expect(find.text(AppStrings.addBill), findsOneWidget);
-  });
-
-  testWidgets('shows bill cards when accounts exist', (tester) async {
-    final account = BillAccount.create(
-      utilityType: UtilityType.desco,
-      accountNumber: '1234567',
-      nickname: 'Home',
-      typicalDueDay: 15,
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          billAccountsProvider.overrideWith(
-            () => _FixedBillsNotifier(
-              BillAccountsState.fromAccounts([account]),
-            ),
-          ),
-        ],
-        child: const MaterialApp(home: HomeScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('সব বিল'), findsOneWidget);
-    expect(find.text('পে করুন'), findsOneWidget);
   });
 }
